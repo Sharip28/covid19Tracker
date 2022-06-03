@@ -58,9 +58,6 @@ const options = {
 const buildChartData = (data, casesType) => {
     let chartData = [];
     let lastDataPoint;
-
-
-
     for (let date in data.cases) {
         if (lastDataPoint) {
             let newDataPoint = {
@@ -75,7 +72,7 @@ const buildChartData = (data, casesType) => {
 };
 
 
-function LineGraph({ casesType="cases", ...props }) {
+function LineGraph({ casesType, ...props }) {
     const [data, setData] = useState({});
 
     useEffect(() => {
@@ -94,7 +91,7 @@ function LineGraph({ casesType="cases", ...props }) {
 
     return (
         <div className={props.className} >
-            {data?.length > 0 && (
+            {/* {data?.length > 0 && (
 
                 <Line
                     options={options}
@@ -110,7 +107,24 @@ function LineGraph({ casesType="cases", ...props }) {
                     }}
 
                 />
-            )}
+            )} */}
+            {data
+                ? <Line
+                    options={options}
+                    data={{
+                        datasets: [
+                            {
+                                backgroundColor: "rgba(204, 16, 52, 0.5)",
+                                borderColor: "#CC1034",
+                                data: data,
+                                fill: true,
+                            },
+                        ],
+                    }}
+
+                />
+                : <div>"No data was fetched"</div>
+            }
         </div>
     );
 }

@@ -17,19 +17,20 @@ import 'leaflet/dist/leaflet.css';
 
 
 function App() {
-  const [countries, setCountries] = useState(['USA', 'UK', 'INDIA']);
+  const [countries, setCountries] = useState([]);
   const [country, setCountry] = useState('worldwide');
   const [countryInfo, setCountryInfo] = useState({});
   const [tableData, setTableData] = useState([]);
-  const [mapCenter, setMapCenter] = useState({ lat: 34.80746, lng: -40.4796 });
+  // const [mapCenter, setMapCenter] = useState({ lat: 34.80746, lng: -40.4796 });
+  const [mapCenter, setMapCenter] = useState([34.80746, -40.4796]);
   const [mapZoom, setMapZoom] = useState(3);
   const [mapCountries, setMapCountries] = useState([]);
   const [casesType, setCasesType] = useState('cases');
 
   useEffect(() => {
     fetch('https://disease.sh/v3/covid-19/all')
-      .then(response => response.json())
-      .then(data => {
+      .then((response) => response.json())
+      .then((data) => {
         setCountryInfo(data);
       })
   }, []);
@@ -45,7 +46,7 @@ function App() {
               value: country.countryInfo.iso2,
             }
           ));
-          const sortedData = sortData(data);
+          let sortedData = sortData(data);
           setTableData(sortedData);
           setMapCountries(data);
           setCountries(countries);
@@ -55,19 +56,20 @@ function App() {
     getCountriesData();
   }, []);
 
-  const onCountryChange = async (event) => {
-    const countryCode = event.target.value;
+  const onCountryChange = async (e) => {
+    const countryCode = e.target.value;
     const url =
       countryCode === 'worldwide'
         ? 'https://disease.sh/v3/covid-19/all'
-        : `https://disease.sh/v3/covid-19/countries/${countryCode}`;
+        : `https://disease.sh/v3/covid-19/countries/${countryCode}?strict=true`;
     await fetch(url)
       .then((response) => response.json())
       .then((data) => {
         setCountry(countryCode);
         setCountryInfo(data);
+        // setMapCenter({ lat: data.countryInfo.lat, lng: data.countryInfo.long });
         setMapCenter([data.countryInfo.lat, data.countryInfo.long]);
-        setMapZoom(4);
+        setMapZoom(5);
       });
   };
 
@@ -93,10 +95,10 @@ function App() {
 
         <div className='app__stats'>
           <InfoBox
-            isRed
-            active={casesType === 'cases'}
             onClick={(e) => setCasesType('cases')}
             title='Cases'
+            isRed
+            active={casesType === 'cases'}
             cases={prettyPrintStat(countryInfo.todayCases)}
             total={prettyPrintStat(countryInfo.cases)}></InfoBox>
           <InfoBox
@@ -124,10 +126,9 @@ function App() {
 
       <Card className='app__right'>
         <CardContent>
-
-          <h2>live cases by country</h2>
+          <h3>live cases by country</h3>
           <Table countries={tableData}></Table>
-          <h2 className='app__graphTitle'>worldwide new {casesType}</h2>
+          <h3 className='app__graphTitle'>worldwide new {casesType}</h3>
           <LineGraph className='app__graph' casesType={casesType} />
         </CardContent>
       </Card>
